@@ -695,3 +695,168 @@ interface Constants {
 // Usage elsewhere in the code
 System.out.println(Constants.MAX_VALUE);
 ```
+
+---
+
+## Default Methods (Java 8 Feature)
+### ❓ What is `default` in an Interface?
+The `default` keyword allows an interface to provide a method implementation.
+
+- **Before Java 8:** Interfaces could only have method declarations. No method body was allowed.
+- **After Java 8:** You can write a method with a body directly inside the interface using the `default` keyword.
+
+### 🔹 Example
+```java
+interface Animal {
+    void makeSound(); // Abstract method
+
+    // Default method (has an implementation body)
+    default void sleep() {
+        System.out.println("Sleeping...");
+    }
+}
+```
+
+**Here:**
+- `makeSound()` → **Must** be implemented by the class.
+- `sleep()` → Is **already implemented** and inherited for free!
+
+### 🤔 What Does `default` Actually Do?
+It provides a default behavior to all classes that implement the interface! Any class implementing `Animal` automatically gets the `sleep()` method.
+
+**Now, the implementing class only needs to define the abstract methods:**
+```java
+class Dog implements Animal {
+    public void makeSound() {
+        System.out.println("Bark");
+    }
+}
+```
+
+Because `Dog` automatically inherited `sleep()`, you can call it freely:
+```java
+Dog d = new Dog();
+d.makeSound(); // Prints: Bark
+d.sleep();     // Prints: Sleeping...
+```
+
+### 🕰️ Why Were Default Methods Introduced?
+The primary reason default methods were introduced was to support **Backward Compatibility**.
+
+**Imagine this situation:**
+Java has an existing core interface:
+```java
+interface List {
+    void add(E e);
+}
+```
+
+**Now, Java wants to add a new `sort()` method:**
+- **If they added a normal abstract method:** Every single class implementing `List` worldwide would instantly break because they don't have an implementation for `sort()`.
+
+**Instead, they do this:**
+```java
+default void sort() {
+    // implementation
+}
+```
+**Now:**
+- Existing classes **still work**.
+- There are **no compilation errors**.
+> 🌟 This is the main reason `default` exists!
+
+### 💡 What Happens If Class Overrides It?
+The class can override the default method.
+
+```java
+class Dog implements Animal {
+    public void makeSound() {
+        System.out.println("Bark");
+    }
+
+    // Overriding the default method
+    public void sleep() {
+        System.out.println("Dog sleeping");
+    }
+}
+```
+> 👉 **Rule:** The class method *always* wins over the default method!
+
+### 🚨 Important Rules for Default Methods
+1. **Inherited:** Default methods are inherited by the implementing class.
+2. **Can be overridden:** The implementing class can choose to provide its own logic.
+3. **Multiple inheritance conflicts:** If two interfaces provide the exact same default method and a class implements both, the class **must** explicitly override the method to resolve the conflict (The Diamond Problem).
+4. **No instance variables:** They cannot access instance variables, because interfaces themselves do not hold state.
+
+### ⚙️ Static Methods in Interface
+Java 8 also allows `static` methods inside of an interface. Just like standard static methods, these belong to the interface itself, not an implementing object.
+**🔹 Example:**
+```java
+interface MathUtils {
+    static int add(int a, int b) {
+        return a + b;
+    }
+}
+```
+
+**How to call it:**
+```java
+MathUtils.add(10, 20); // Correct: Called directly on the interface name
+```
+
+### 🚨 Important Rules for Static Interface Methods
+1. **Cannot be overridden:** Implementing classes cannot override static methods.
+2. **Not inherited:** They are not inherited by the implementing class.
+3. **Must use interface name:** You *must* call them using the interface name itself.
+
+**Example:**
+```java
+Dog.add();         // ❌ Wrong (Not inherited by implementing class)
+MathUtils.add();   // ✅ Correct (Called directly on the interface name)
+```
+
+### 🤔 Why Static Methods in Interfaces?
+Static methods were added to interfaces primarily to provide:
+1. **Utility/Helper Methods:** Methods that can help interface classes without requiring a separate utility class.
+2. **Method Grouping:** The ability to group related helper methods directly inside the interfaces they belong to.
+3. **Cleaner API Design:** Leads to improved cohesion and encapsulation.
+
+---
+
+## The Diamond Problem with Default Methods
+*⭐ Interview Favorite*
+
+If an implementing class inherits from multiple interfaces that contain `default` methods with the exact same signature, Java won't know which default implementation to choose!
+
+### 🔹 The Problem Setup
+```java
+interface A {
+    default void show() { System.out.println("A"); }
+}
+
+interface B {
+    default void show() { System.out.println("B"); }
+}
+
+class C implements A, B {
+    // ❌ ERROR: Java doesn't know whether to use A's show() or B's show()
+}
+```
+
+### ✅ The Solution
+To fix this, the implementing class **must** explicitly override the conflicting method and resolve the ambiguity. You can call a specific interface's default method using the `InterfaceName.super.methodName()` syntax:
+
+```java
+class C implements A, B {
+    public void show() {
+        A.super.show(); // must resolve conflict
+    }
+}
+```
+
+### 🎯 Interface Features Quick Review
+| Feature | Purpose |
+| --- | --- |
+| `public static final` | Constants only |
+| `default` method | Backward compatibility |
+| `static` method | Utility/helper methods |
