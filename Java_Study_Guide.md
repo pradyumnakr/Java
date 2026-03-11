@@ -854,6 +854,17 @@ class C implements A, B {
 }
 ```
 
+### ❓ Why Not Just `super.show()`?
+Because `super` normally refers to a parent **class**. Since Java allows multiple interfaces but only single class inheritance, there is no single superclass method to fall back on when you implement both `A` and `B`.
+
+So, Java requires you to explicitly specify which interface's method you want:
+`InterfaceName.super.method()`
+
+### 🚨 Key Rule summary:
+When two interfaces provide the exact same default method:
+- 👉 The implementing class **must** override the method.
+- 👉 The class must explicitly resolve the conflict using `InterfaceName.super.method()`.
+
 ### 🎯 Interface Features Quick Review
 | Feature | Purpose |
 | --- | --- |
