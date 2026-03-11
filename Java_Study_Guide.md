@@ -469,3 +469,229 @@ list.add("Hello");
 // No casting needed
 String s = list.get(0);
 ```
+
+---
+
+## Class in Java
+A **class** is a blueprint or template used to create objects.
+> 👉 *A class does **NOT** occupy memory until an object is created.*
+
+It can contain:
+- **Fields** (variables)
+- **Methods** (functions / behavior)
+- **Constructors**
+- **Static members**
+- **Nested classes**
+
+### 🏗 Real-Life Analogy
+- **Class** = Blueprint of a House
+- **Object** = Actual House built from that blueprint
+
+### 🔹 Example
+```java
+class Student {
+    String name;   // field (instance variable)
+    int age;
+
+    void study() { // method (behavior)
+        System.out.println(name + " is studying");
+    }
+}
+```
+**Here:**
+- `Student` → The Class
+- `name`, `age` → Instance variables
+- `study()` → Behavior
+
+---
+
+## Object in Java
+An **object** is an instance of a class. It represents a real-world entity that is built using the class template.
+
+### 🧩 What makes up an Object?
+1. **State:** Represented by data/attributes (instance variables).
+2. **Behavior:** Represented by methods (functions).
+3. **Identity:** Represented by a unique memory address assigned by the JVM.
+
+### 📌 Creating an Object
+```java
+Student s1 = new Student();
+```
+
+**What happens internally?**
+- `new Student()` → The actual Object data (variables and methods) is created and stored in the **Heap** memory.
+- `s1` → The resulting reference variable (holding the memory address) is stored in the local **Stack** memory.
+
+---
+
+## Interface in Java
+An **interface** is a contract. It defines *what* a class using it must do, but not *how* it does it.
+
+### 📌 Basic Interface Example
+First, define the interface:
+```java
+interface Animal {
+    void makeSound();
+}
+```
+
+Now, a class can implement it. The class is forced to define *how* `makeSound()` works:
+```java
+class Dog implements Animal {
+    public void makeSound() {
+        System.out.println("Bark");
+    }
+}
+```
+
+### 🤔 Why Use Interfaces?
+- Achieve **abstraction** (hiding implementation details)
+- Achieve **multiple inheritance** (since Java doesn't allow extending multiple classes)
+- Maintain **loose coupling** between components
+- Encourage **better design** and clean architecture
+
+### 🔥 Multiple Inheritance Example
+Java allows a class to implement **multiple interfaces**, but it can only extend *one* class.
+
+```java
+interface Flyable {
+    void fly();
+}
+
+interface Swimmable {
+    void swim();
+}
+
+// A Duck can be both Flyable and Swimmable!
+class Duck implements Flyable, Swimmable {
+    public void fly() {
+        // Flying logic
+    }
+    public void swim() {
+        // Swimming logic
+    }
+}
+```
+
+### 🆚 Class vs. Interface
+
+| Feature | Class | Interface |
+| --- | --- | --- |
+| **Implementation** | ✅ Yes, can have logic | ❌ No (before Java 8) |
+| **Multiple Inheritance** | ❌ No | ✅ Yes |
+| **Constructors** | ✅ Yes | ❌ No |
+| **Fields** | Typical instance variables | Only `public static final` fields |
+| **Object Creation** | ✅ Yes | ❌ No |
+
+### 🚀 Interfaces After Java 8
+Starting with Java 8, interfaces were greatly enhanced to allow certain types of concrete implementations:
+- **Default Methods:** Methods with a body, using the `default` keyword.
+- **Static Methods:** Class-level methods that belong strictly to the interface.
+
+**Example:**
+```java
+interface Vehicle {
+    default void start() {
+        System.out.println("Starting...");
+    }
+}
+```
+
+### 🦸‍♂️ Why an Interface is Powerful
+One of the core reasons modern Java developers use interfaces is because it enables **Polymorphism**.
+
+```java
+// Our interface acting as a contract
+interface Animal {
+    void makeSound();
+}
+
+// Our concrete implementations
+class Dog implements Animal { ... }
+class Cat implements Animal { ... }
+```
+
+**Because of Polymorphism, we can write:**
+```java
+Animal a = new Dog();
+a.makeSound();
+
+Animal b = new Cat();
+b.makeSound();
+```
+Now, our code depends directly on `Animal`, and not explicitly on `Dog` or `Cat`! 
+
+> 💡 This is a powerful, standard core principle known as: **"Programming to an interface, not an implementation."**
+
+### 🔗 It Reduces Coupling (Very Important in Interviews)
+Interfaces are critical for reducing coupling between classes.
+
+**Without Interface (Tightly Coupled):**
+```java
+Dog dog = new Dog(); // Code is tightly coupled to the Dog class
+```
+
+**With Interface (Loosely Coupled):**
+```java
+Animal animal = new Dog(); // Depends only on the abstract Animal interface
+```
+With the loosely coupled approach, you can later replace `Dog` with `Cat` seamlessly without having to change any other code!
+
+**Method Parameter Example:**
+```java
+void playSound(Animal animal) {
+    animal.makeSound();
+}
+```
+Now this single method works for `Dog`, `Cat`, `Cow`, `Lion`, and any future `Animal` you create! Without the interface, you’d be forced to write hardcoded, duplicate methods for every single animal (e.g., `void playSound(Dog dog)`, `void playSound(Cat cat)`, etc.).
+
+> 🚨 **To summarize:** An Interface enforces a strict rule. It acts as a **contract** that states: *"Anything that is an Animal MUST be able to `makeSound()`"*.
+
+### 🌟 Interfaces Help With:
+- **Polymorphism**
+- **Abstraction**
+- **Loose Coupling**
+- **Testability** (ease of mocking)
+- **Dependency Injection**
+- **Clean Architecture**
+
+### ❌ What Happens If You Don’t Use an Interface?
+Without an interface, your code becomes:
+- **Tightly coupled** (Hardcoded dependencies)
+- **Hard to scale** (Adding new functionality leads to massive code rewrites)
+- **Hard to test** (Cannot easily mock out dependencies for unit tests)
+- **Hard to replace implementations** (Requires altering existing concrete code rather than just adding a new implementing class)
+
+### 📌 Interface Variables (`public static final`)
+
+If you declare a variable inside an interface:
+```java
+interface Animal {
+    int AGE = 10;
+}
+```
+Java **automatically** treats it as this, even if you don't write it:
+```java
+public static final int AGE = 10;
+```
+
+**What Does That Mean?**
+- `public` → Accessible from everywhere.
+- `static` → Belongs to the interface itself, not any object instance.
+- `final` → It is a constant and cannot be changed.
+
+**❓ Why is it strictly this way?**
+Because an interface simply represents a **contract**.
+- It **cannot** hold object state.
+- It **cannot** have instance variables.
+- It is strictly meant to define behavior, not state.
+
+**Example Usage:**
+```java
+interface Constants {
+    int MAX_VALUE = 100;
+}
+
+// Usage elsewhere in the code
+System.out.println(Constants.MAX_VALUE);
+```
