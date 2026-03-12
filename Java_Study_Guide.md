@@ -871,3 +871,266 @@ When two interfaces provide the exact same default method:
 | `public static final` | Constants only |
 | `default` method | Backward compatibility |
 | `static` method | Utility/helper methods |
+
+### ⭐ Important Hierarchy Rule (Interview Favorite)
+When resolving which method to use, Java follows this strict priority order:
+
+1. **Class method** (always wins)
+2. **Most specific interface** (if no class method)
+3. **Explicit override required** if there is a conflict between two interfaces
+
+**Example:**
+```java
+class Parent {
+    void show() {}
+}
+
+interface A {
+    default void show() {}
+}
+
+class C extends Parent implements A { }
+```
+> 👉 `Parent`'s `show()` is used — **no conflict**!
+> 
+> Because **class > interface**. The class hierarchy always takes precedence over interface defaults.
+
+---
+
+## Constructors in Java
+A **constructor** is a special method used to initialize an object when it is created.
+
+### 🔹 Key Rules
+- Same name as the class
+- No return type (not even `void`)
+- Runs **automatically** when an object is created with `new`
+- Used to initialize fields
+
+### 📌 Example
+```java
+class Student {
+    String name;
+    int age;
+
+    Student(String name, int age) {  // constructor
+        this.name = name;
+        this.age = age;
+    }
+}
+```
+
+### 🔢 Types of Constructors
+
+**1️⃣ Default Constructor**
+If you don't define any constructor, Java automatically provides one.
+```java
+class Test {
+}
+// Java internally creates:
+// Test() {}
+```
+
+**2️⃣ Parameterized Constructor**
+```java
+class Test {
+    Test(int x) { }
+}
+```
+
+### 🔄 Constructor Overloading
+You can define multiple constructors with different parameter lists:
+```java
+class Test {
+    Test() { }
+    Test(int x) { }
+}
+```
+
+### 🔁 `this()` vs `super()`
+| Keyword | Purpose |
+| --- | --- |
+| `this()` | Calls another constructor in the **same class** |
+| `super()` | Calls the **parent class** constructor |
+
+```java
+class A {
+    A() { }
+}
+
+class B extends A {
+    B() {
+        super(); // automatically added by Java if not explicitly written
+    }
+}
+```
+
+---
+
+## Static Members
+`static` means a member **belongs to the class itself**, not any individual object.
+
+### 🔹 Static Variable
+Only **one copy** exists, shared among all objects.
+```java
+class Counter {
+    static int count = 0;
+}
+```
+
+### 🔹 Static Method
+Can be called **without creating an object**.
+```java
+class MathUtil {
+    static int add(int a, int b) {
+        return a + b;
+    }
+}
+
+MathUtil.add(2, 3); // Called directly on the class
+```
+
+### 🚨 Important Rules
+- Static methods **cannot** access non-static members directly.
+- A **static block** runs once when the class is loaded by the JVM.
+
+### 🔹 Static Block
+```java
+class Test {
+    static {
+        System.out.println("Runs once");
+    }
+}
+```
+
+---
+
+## Nested Classes
+A **nested class** is a class defined inside another class.
+
+### 🔹 Types of Nested Classes
+
+**1️⃣ Static Nested Class**
+```java
+class Outer {
+    static class Inner {
+        void show() {}
+    }
+}
+
+Outer.Inner obj = new Outer.Inner();
+```
+> ⚠️ Cannot access outer class's non-static members directly.
+
+**2️⃣ Non-Static Inner Class**
+```java
+class Outer {
+    class Inner {
+        void show() {}
+    }
+}
+
+// Access:
+Outer outer = new Outer();
+Outer.Inner obj = outer.new Inner();
+```
+> ✅ Can access all outer class members.
+
+**3️⃣ Local Class**
+Defined inside a method. Only visible within that method.
+
+**4️⃣ Anonymous Class**
+A class defined and instantiated in a single expression, with no name. Commonly used to implement interfaces on the fly.
+```java
+Runnable r = new Runnable() {
+    public void run() {
+        System.out.println("Running");
+    }
+};
+
+---
+
+## Access Modifiers
+Access modifiers control the **visibility** of classes, methods, and fields.
+
+| Modifier | Same Class | Same Package | Subclass | Everywhere |
+| --- | --- | --- | --- | --- |
+| `public` | ✅ | ✅ | ✅ | ✅ |
+| `protected` | ✅ | ✅ | ✅ | ❌ |
+| `default` *(no keyword)* | ✅ | ✅ | ❌ | ❌ |
+| `private` | ✅ | ❌ | ❌ | ❌ |
+
+- **`public`** → Accessible everywhere: `public class Test {}`
+- **`private`** → Accessible only inside the same class: `private int age;`
+- **`protected`** → Accessible within the same package and by subclasses (even in a different package).
+- **`default`** *(no keyword)* → Accessible only within the same package.
+
+---
+
+## Constructor Overloading
+Constructor overloading means a class has **multiple constructors** with different parameter lists. They share the same name (the class name) but differ in number, type, or order of parameters.
+
+```java
+class Student {
+    String name;
+    int age;
+
+    Student() {
+        System.out.println("Default constructor");
+    }
+
+    Student(String name) {
+        this.name = name;
+    }
+
+    Student(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+}
+
+Student s1 = new Student();
+Student s2 = new Student("Pradyumna");
+Student s3 = new Student("Pradyumna", 24);
+```
+
+### 🔹 Rules of Constructor Overloading
+Constructors must differ by **at least one** of:
+- Number of parameters
+- Type of parameters
+- Order of parameters
+
+```java
+// ✅ Valid: Different types
+class Test {
+    Test(int a) {}
+    Test(double a) {}
+}
+
+// ✅ Valid: Different order
+class Test {
+    Test(int a, String b) {}
+    Test(String b, int a) {}
+}
+```
+
+### 🔁 Using `this()` in Constructor Overloading
+*⭐ Very important in interviews!*
+
+Instead of repeating initialization code across constructors, use `this()` to delegate to another constructor:
+
+```java
+class Student {
+    String name;
+    int age;
+
+    Student(String name) {
+        this(name, 18);  // Calls the two-arg constructor below
+    }
+
+    Student(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+}
+```
+> 👉 `this()` **must** be the first statement in the constructor.
